@@ -1,5 +1,5 @@
 ---
-title: "STA286 Lecture 05"
+title: "STA286 Lecture 06"
 author: "Neil Montgomery"
 date: "Last edited: `r format(Sys.time(), '%Y-%m-%d %H:%M')`"
 output: 
@@ -33,6 +33,15 @@ $$F(x) = \begin{cases}
 \onslide<5->{1 &: x \ge 1}
 \end{cases}$$
 
+## picture of cdf
+
+```{r, message=FALSE, warning=FALSE}
+source("cdf.R")
+plot_cdf(data_frame(x=0:1, y=c(0.5,0.5)))
+
+```
+
+
 ## defining properties of a cdf
 
 A function is a cdf if and only if:
@@ -41,16 +50,37 @@ A function is a cdf if and only if:
 
 2. $\lim\limits_{x\to+\infty} F(x) = 1$ ("Ends at 1")
 
-3. it is "right-continuous" (technical definition: $\lim\limits_{x\to x_0^+} F(x) = F(x_0)$)
+3. it is non-decreasing, i.e. $x \le y$ implies $F(x) \le F(y)$
+
+4. it is "right-continuous" (technical definition: $\lim\limits_{x\to x_0^+} F(x) = F(x_0)$)
 
 \pause Example: waiting for the bus for between 0 and 10 minutes "uniformly".
 
 \pause $$F(x) = \begin{cases}
 0 &: x < 0\\
-x &: 0 \le x < 10\\
+x/10 &: 0 \le x < 10\\
 1 &: x \ge 10
 \end{cases}$$
 \pause Equality vs. inequality not really important in a "continuous" probability model.
+
+## picture of this cdf
+
+```{r}
+data_frame(x=c(-2.618, 0, 10, 12.618), y=c(0,0,1,1)) %>% 
+  ggplot(aes(x=x,y=y)) + geom_line() + 
+  geom_segment(x=-2.618, y=0, xend=0, yend=0, 
+               arrow=arrow(length=unit(0.15, "inches"), 
+                             ends="first", type = "closed")) + 
+  geom_segment(x=10, y=1, xend=12.618, yend=1, 
+               arrow=arrow(length=unit(0.15, "inches"), 
+                             ends="last", type = "closed")) + 
+  ylab(expression(P(X <= x))) + 
+    theme_classic() + 
+    theme(axis.text = element_text(size=14, colour="black"),
+          axis.title = element_text(size=14, face="bold"))
+
+```
+
 
 ## a taxonomy of random variables
 
@@ -118,10 +148,27 @@ $$\sum\limits_{x=1}^\infty \left(\frac{1}{2}\right)^x = \sum\limits_{x=0}^\infty
 
 ## a pmf completely characterizes a discrete distribution
 
-I told you a cdf completely characterizes any distribution, which you'll have to take on faith (or buffy, if you prefer.)
+I told you a cdf completely characterizes any distribution, which is a fact you'll have to take on buffy. 
 
 \pause A discrete random variable has a pmf. Does the pmf characterize the distribtuion? 
 
-\pause Yes, because you can compute a cdf from a pdf and vice versa. Obviously:
+\pause Yes, because you can compute a cdf from a pdf and vice versa. "Obviously:"
 $$F(x) = \sum\limits_{y\le x} p(y)$$
 For the reverse direction you take the jump points of the cdf and determine the magnitude of the jump.
+
+## possibly easier to see than to understand the formal statement
+
+```{r, warning=FALSE}
+p <- plot_cdf(data_frame(x=1:6, y=(0.5)^(1:6)))
+
+p + 
+  geom_segment(data=data_frame(x=1:6, y=1-0.5^(0:5), xend=1:6,yend=1-(0.5)^(1:6)),
+               mapping=aes(x=x, y=y,
+                           xend=xend,yend=yend), colour="blue", size=1.5, alpha=0.5) +
+  annotate("text", x=1:4-0.5 , y=(1-0.5^(1:4) - 0.5^(1:4)/2), label=sprintf("P(X=%d)", 1:4), color="blue")
+  
+```
+
+
+
+
